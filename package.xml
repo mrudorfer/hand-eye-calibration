@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>calibration</name>
+  <name>hand-eye-calibration</name>
   <version>0.0.0</version>
   <description>The calibration package</description>
 
