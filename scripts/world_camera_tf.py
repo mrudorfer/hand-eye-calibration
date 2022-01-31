@@ -15,9 +15,8 @@ class WorldCameraTF:
         self.world_frame = rospy.get_param('~world_frame', default='world')
         self.camera_frame = rospy.get_param('~camera_frame', default='kinect2_link')
 
-        self.pos = np.array([0.3186263, 0.33035292, 0.79509764])
-        self.quat = np.array([0.21645533, -0.85911871, 0.45153532, 0.10572597])
-
+        self.pos = np.array([0.06979761, -0.00919214, 1.33266725])
+        self.quat = np.array([0.42776437, 0.67582777, -0.50424041, 0.32560112])
         self.rate = rospy.Rate(10)
 
         print('initialising WorldCameraTF with following parameters:')
