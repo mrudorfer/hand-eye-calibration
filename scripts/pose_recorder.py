@@ -132,7 +132,7 @@ class PoseRecorder:
         transforms['optimise2target'] = np.array(transforms['optimise2target'])
 
         # direct averaging
-        print('directly averaging all source-->target transforms yields the following:')
+        print('directly averaging all source-->target transforms yields the following (q: w, x, y, z):')
         avg_pose_direct, t_err, q_err = compute_average_pose(transforms['source2target'])
         print_pose(avg_pose_direct)
         print(f'translational errors: avg {t_err.mean()}, std {t_err.std()}')
