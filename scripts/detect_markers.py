@@ -26,6 +26,7 @@ class ArucoBoardDetector:
         self.marker_image = rospy.get_param('~marker_image', default='marker_image')
         self.camera_frame = rospy.get_param('~camera_frame', default='kinect2_link')
         self.marker_frame = rospy.get_param('~marker_frame', default='marker_frame')
+        self.marker_is_parent = rospy.get_param('~marker_is_parent', default=True)
         self.marker_count_x = rospy.get_param('~marker_count_x', default=3)
         self.marker_count_y = rospy.get_param('~marker_count_y', default=2)
         self.marker_size_mm = rospy.get_param('~marker_size_mm', default=57)
@@ -72,8 +73,8 @@ class ArucoBoardDetector:
             cv2.aruco.detectMarkers(gray, self.aruco_dict, parameters=self.parameters, cameraMatrix=camera_matrix,
                                     distCoeff=distortion_coeffs)
 
-        if ids is None or len(ids) < self.marker_count_x * self.marker_count_y:  # or required if ids is None
-            print(f'found markers: {ids} -- some are missing??')
+        # if ids is None or len(ids) < self.marker_count_x * self.marker_count_y:  # or required if ids is None
+        #     print(f'found markers: {ids} -- some are missing??')
         # only if any markers have been found
         if len(corners) > 0:
             # try to refine the detection - since we have grid board, we know where to expect markers
@@ -101,12 +102,15 @@ class ArucoBoardDetector:
         pose[0:3, 0:3] = cv2.Rodrigues(rvec)[0]
         pose[0:3, 3] = tvec.flatten() / 1000  # marker size was given in mm
 
-        # pose is actual the inverse, as we use marker as parent and camera as child
-        # otherwise some node in tf tree would have multiple parents
-        pose = np.linalg.inv(pose)
+        # allow configurable directions to prevent tf tree from breaking
         t = geometry_msgs.msg.TransformStamped()
-        t.header.frame_id = self.marker_frame
-        t.child_frame_id = self.camera_frame
+        if self.marker_is_parent:
+            pose = np.linalg.inv(pose)
+            t.header.frame_id = self.marker_frame
+            t.child_frame_id = self.camera_frame
+        else:
+            t.header.frame_id = self.camera_frame
+            t.child_frame_id = self.marker_frame
         t.header.stamp = rospy.Time.now()
         t.transform = ros_numpy.msgify(geometry_msgs.msg.Transform, pose)
         self.pub_tf.sendTransform(t)
